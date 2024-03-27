@@ -11,6 +11,7 @@ export interface IPost {
     ratings: (string| IPostRating)[];
     imgUrl?: string;
     exp_rating: number;
+    created_at: Date;
     comments: (string | IPostComment)[];
     // the following fields are not in the database
     isLikedByCurrentUser: boolean;
@@ -103,4 +104,4 @@ export interface IPostFull extends IPost {
     comments: IPostCommentWithUserAndRatings[];
     post_owner: IUser;
 }
-/// FORM TYPES
+

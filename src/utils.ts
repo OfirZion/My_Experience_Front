@@ -14,7 +14,7 @@ export function findPostRating(post: IPostWithRatings, currentUserId: string): R
 }
 
 export function updatePostRating(
-    post: IPostFull,
+     post: IPostFull,
      existingRatingIndex: RatingIndex, 
      rating: IPostRatingForm) {
      // if the user clicks the same rating type again, remove the rating
@@ -29,8 +29,14 @@ export function updatePostRating(
     }
 }
 
+export function normalizeDate<T extends IPostWithRatings>(post: T) {
+    post.created_at = new Date(post.created_at)
+    return post
+}
+
 export function normalizePosts<T extends IPostWithRatings>(posts: T[], currentUserId:string | null | undefined) : T[] {
     for(const post of posts) {
+        normalizeDate(post)
         if(!currentUserId) { 
             post.isDislikedByCurrentUser = false
             post.isLikedByCurrentUser = false
@@ -46,6 +52,11 @@ export function normalizePosts<T extends IPostWithRatings>(posts: T[], currentUs
         }
     }
     return posts
+}
+
+
+export function toBeautifiedDate(date: Date): string {
+    return date.toDateString()
 }
 
 export function waitFor(timeInMillis: number): Promise<void> {
@@ -68,5 +79,5 @@ export function withHandleError<T, U extends any[]>(fn: (...args: U) => Promise<
                 throw err
             }
         }
-    }
+}
     

@@ -67,6 +67,7 @@ import { useUser } from "../context/UserContext"
         const found = currentUser?.following.find(other => other.following._id === otherUserId)
         return found !== undefined
     },[currentUser])
+    
     return <div className="flex flex-col gap-4">
         <h1 className="text-2xl font-bold">Search for a user</h1>
         <input type="text" onChange={search} placeholder="Search for a user" className="p-2 border border-gray-300 rounded-md max-w-[300px]"/>
@@ -78,7 +79,7 @@ import { useUser } from "../context/UserContext"
                     <img src="https://via.placeholder.com/150" alt="profile" className="rounded-full w-16 h-16"/>
                     <div>
                         <h3 className="text-lg font-bold">{user.name}</h3>
-                        <h4 className="text-md">{user.auth.email}</h4>
+                        <h4 className="text-md py-4">{user.auth.email}</h4>
 
                         <div className="flex flex-row gap-4">
                             <Link to={`/profile-other/${user._id}`} className="bg-green-500 text-white p-2 rounded-md">View Profile</Link>

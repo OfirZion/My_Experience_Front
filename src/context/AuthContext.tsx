@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import {   IUserFull } from "../types/auth.types";
+import {    IUserFull } from "../types/auth.types";
 import { IUserLoginForm, IUserRegistrationForm } from "../types/schemas.types";
 import { IAuthContext } from "../types/context.types";
 import * as authService from "../services/authService";
@@ -53,11 +53,31 @@ export default function AuthContextProvider({children}: {children: React.ReactNo
             return response as IResponse<IToken>
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch(error: any) {
-            setError(error.message);
+            setError(error?.message ?? error);
             return error
         }
     }
 
+    async function googleLogin(credential: string) {
+        setLoading(true);
+        setError(null);
+        try {
+            const response = await authService.authenticateWithGoogle(credential);
+            if(response.data?.accessToken) {
+                window.location.reload() //hack fix
+                setToken(response.data);
+            } else {
+                setError(response.message);
+            }
+            return response as IResponse<IToken>
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch(error: any) {
+            setError(error?.message ?? error);
+            return error
+        }
+    }
+
+    
     async function register(form: IUserRegistrationForm) {
         setLoading(true);
         setError(null);
@@ -91,6 +111,7 @@ export default function AuthContextProvider({children}: {children: React.ReactNo
             setToken(null);
             // Clear the token from the local storage
             localStorage.removeItem("token");
+            await authService.logout();
         } catch (error) {
             setError(error);
         } finally {
@@ -103,6 +124,7 @@ export default function AuthContextProvider({children}: {children: React.ReactNo
         token,
         loading,
         setLoading,
+        googleLogin,
         setUser,
         error,
         setError,

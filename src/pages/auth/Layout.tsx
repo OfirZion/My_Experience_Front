@@ -21,6 +21,7 @@ function Layout() {
             </Link>
         </div>
     }, [pathname])
+    
     return <Page>
         <Outlet/>
         <BottomButton/>

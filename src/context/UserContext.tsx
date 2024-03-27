@@ -2,10 +2,11 @@ import React from "react";
 import { useAuth } from "./AuthContext";
 import { toast } from "react-toastify";
 import * as userService from "../services/usersService";
-import { IUserFull, IUserRatingWithRatedUser } from "../types/auth.types";
+import { IUserAuth, IUserFull, IUserRatingWithRatedUser } from "../types/auth.types";
 export interface IUserContext {
     followToggle: (userId: string) => void;
     getUserById: (userId: string) => Promise<IUserFull | null>;
+    updateUser(authData: Partial<IUserAuth>, userData: Partial<IUserFull>): Promise<IUserFull | null>
     rateUser: (userId: string, rating_type: number) => Promise<IUserRatingWithRatedUser | null>;
     deleteUserRating: (ratingId: string) => Promise<IUserRatingWithRatedUser | null>;
 }
@@ -15,6 +16,20 @@ const UserContext = React.createContext<IUserContext| null>(null)
 export const UserContextProvider = ({children} : {children: React.ReactNode}) => {
 
     const {setUser,user} = useAuth()
+
+    async function updateUser(authData: Partial<IUserAuth>, userData: Partial<IUserFull>) {
+        try {
+            const { data } = await userService.updateUser(authData, userData);
+            if(data) {
+                setUser(data);
+                return data
+            }
+        } catch (error) {
+            console.error(error)
+        } 
+        return null
+    }
+
 
     const followToggle = async (userId: string) => {
       if(!user) return
@@ -80,6 +95,7 @@ export const UserContextProvider = ({children} : {children: React.ReactNode}) =>
         try {
             const response = await userService.getUserById(userId)
             return response.data
+       
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         }catch(e:any) {
             if((e.status || 200) / 100 !== 2) {
@@ -91,7 +107,7 @@ export const UserContextProvider = ({children} : {children: React.ReactNode}) =>
         return null
     }
 
-    return <UserContext.Provider value={{followToggle, rateUser, deleteUserRating,getUserById}}>
+    return <UserContext.Provider value={{followToggle, rateUser, deleteUserRating,getUserById,updateUser}}>
         {children}
     </UserContext.Provider>
 }

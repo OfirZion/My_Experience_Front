@@ -1,6 +1,6 @@
 import axios from "axios"
 import { withHandleError } from "../utils"
-import {  IUserFull, IUserRatingWithRatedUser, IUserWithAuth } from "../types/auth.types"
+import {  IUserAuth, IUserFull, IUserRatingWithRatedUser, IUserWithAuth } from "../types/auth.types"
 import { IResponse } from "../types/http.types"
 import { IFollowWithFollowedUser } from "../types/follow.types"
 
@@ -28,6 +28,13 @@ export const deleteUserRating = withHandleError(async (ratingId: string) => {
     const response = await axios.delete<IResponse<IUserRatingWithRatedUser>>(`/userRatings/${ratingId}`)
     return response.data
 })
+
+
+export const updateUser = withHandleError(async (authData: Partial<IUserAuth>, userData: Partial<IUserFull>) => {
+    const response = await axios.put<IResponse<IUserFull>>(`/users`, {authData,userData})
+    return response.data
+})
+
 
 export const followUserToggle = withHandleError(async (userId: string) => {
     const response = await axios.put<IResponse<IFollowWithFollowedUser>>(`/follows/${userId}`)

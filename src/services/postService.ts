@@ -14,6 +14,15 @@ export const createPost = withHandleError(async (post: IPostForm) => {
     const response = await axios.post<IResponse<IPostFull>>("/posts", post)
     return response.data
 })
+export const editPost = withHandleError(async (postId: string, post: Partial<IPostFull>) => {
+    const response = await axios.put<IResponse<IPostFull>>(`/posts/${postId}`, post)
+    return response.data
+})
+
+export const removePost = withHandleError(async (postId: string) => {
+    const response = await axios.delete<IResponse<IPostFull>>(`/posts/${postId}`)
+    return response.data
+})
 
 export const ratePost = withHandleError(async (postId: string, form: IPostRatingForm) => {
     const response = await axios.put<IResponse<IPostRatingWithUser>>(`/postRatings/${postId}`,form)
@@ -22,6 +31,7 @@ export const ratePost = withHandleError(async (postId: string, form: IPostRating
 
 export const addComment = withHandleError(async (postId: string, comment: ICommentForm) => {
     const response = await axios.post<IResponse<IPostCommentWithUserAndRatings>>(`/comments/${postId}`, comment)
+
     return response.data
 })
 

@@ -3,9 +3,10 @@ import React, { useEffect } from "react";
 import { IPostForm, IPostRatingForm } from "../types/schemas.types";
 import { useAuth } from "./AuthContext";
 import * as postService from "../services/postService";
-import { findPostRating, normalizePosts, updatePostRating, waitFor } from "../utils";
-import {  IPostCommentWithUserAndRatings, IPostWithRatings } from "../types/posts.types";
+import { findPostRating, normalizeDate, normalizePosts, updatePostRating } from "../utils";
+import {   IPostCommentWithUserAndRatings, IPostFull, IPostWithRatings } from "../types/posts.types";
 const PostContext = React.createContext<IPostContext | null>(null)
+
 
 export default function PostContextProvider({children}: {children: React.ReactNode}) {
     const auth  = useAuth()
@@ -19,8 +20,7 @@ export default function PostContextProvider({children}: {children: React.ReactNo
         const fetchPosts = async () => {
             setLoading(true);
             try {
-                const response = await postService.getPosts()
-                await waitFor(2000)
+                const response = await postService.getPosts();
                 if(response.data) {
                     setPosts(normalizePosts(response.data, auth.user?._id))
                 } else {
@@ -64,7 +64,42 @@ export default function PostContextProvider({children}: {children: React.ReactNo
             }
             const response = await postService.createPost(post)
             if(response.data) {
-                setPosts([...posts, response.data])
+                setPosts([...posts, normalizeDate(response.data)])
+            } else {
+                throw new Error(response.message)
+            }
+            return response.data
+        } catch (error) {
+            setError(error)
+            return null
+        }
+    }
+    async function editPost(postId: string, post: Partial<IPostFull>) {
+        try {
+            if(!auth.user) {
+                throw new Error("You must be logged in to add a post")
+            }
+            const response = await postService.editPost(postId,post)
+            const newPost = response.data
+            if(newPost) {
+                setPosts(posts.map(post => post._id === postId ? normalizeDate(newPost) : post))
+            } else {
+                throw new Error(response.message)
+            }
+            return response.data
+        } catch (error) {
+            setError(error)
+            return null
+        }
+    }
+    async function deletePost(postId: string) {
+        try {
+            if(!auth.user) {
+                throw new Error("You must be logged in to add a post")
+            }
+            const response = await postService.removePost(postId)
+            if(response.data) {
+                setPosts(posts.filter(post => post._id !== postId))
             } else {
                 throw new Error(response.message)
             }
@@ -108,7 +143,7 @@ export default function PostContextProvider({children}: {children: React.ReactNo
     }
 
     return <PostContext.Provider value={{posts, loading, error,
-         setLoading, setError, addPost, ratePost, 
+         setLoading, setError, addPost, ratePost,deletePost, editPost,
      addCommentToPost,removeCommentFromPost}}>
         {children}
     </PostContext.Provider>

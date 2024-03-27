@@ -12,7 +12,8 @@ export interface IContext {
 
 export interface IAuthContext extends IContext {
     user: IUserFull | null;
-    setUser: (user: IUserFull | null) => void;
+    setUser: (user: IUserFull | null) => void
+    googleLogin: (credential: string) => Promise<IResponse<IToken>>;
     token: IToken | null;
     login: (form: IUserLoginForm) => Promise<IResponse<IToken>>;
     register: (form: IUserRegistrationForm) => Promise<IUser | null>
@@ -23,6 +24,8 @@ export interface IAuthContext extends IContext {
 export interface IPostContext extends IContext {
     posts: IPostFull[];
     addPost: (post: IPostForm) => Promise<IPostFull | null>;
+    editPost(postId: string, post: Partial<IPostFull>): Promise<IPostFull | null>
+    deletePost: (postId: string) => Promise<IPostFull | null>;
     addCommentToPost: (postId: string, comment: IPostCommentWithUserAndRatings) => IPostFull | undefined
     removeCommentFromPost: (postId: string, commentId: string) => IPostFull | undefined
     ratePost: (post: IPostWithRatings, rating: IPostRatingForm) => Promise<IPostRatingWithUser | null>;

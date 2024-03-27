@@ -4,10 +4,13 @@ import { useNavigate } from "react-router"
 import * as formStyles from "../../styles/forms.ts"
 import { useAuth } from "../../context/AuthContext.tsx"
 import {toast} from 'react-toastify'
+import { GoogleLogin } from '@react-oauth/google';
+
+  
 export default function Login() {
     const [errors, setErrors] = useState<Map<string, string>>(new Map())
     const nav = useNavigate()
-    const {login} = useAuth()
+    const {login, googleLogin} = useAuth()
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         const  form = e.target as HTMLFormElement
@@ -16,12 +19,12 @@ export default function Login() {
         const parseResult = UserLoginSchema.safeParse(data)
         if(parseResult.success) {
             const loginResponse = await login(parseResult.data)
-            if(loginResponse.data) {
+            if(loginResponse && loginResponse.data) {
                 form.reset()
                 toast.success("Welcome! have fun exploring our website")
                 nav("/")
             } else {
-                toast.error(`Login failed: ${loginResponse.message}`)
+                toast.error(`Login failed: ${loginResponse?.message ?? "Unknown error"}`)
             }
         } else  {
            // create error dictionary
@@ -44,5 +47,21 @@ export default function Login() {
         <input type="password" placeholder="Enter Password" name="password" onChange={clearErrors} className={formStyles.inputStyle} />
         {errors.get('password') && <p className={formStyles.errorStyle}>{errors.get('password')}</p>}
         <button type="submit" className={formStyles.buttonStyle}>Login</button>
+        <GoogleLogin
+                containerProps={{
+                    className:"mx-auto"
+                }}
+                onSuccess={credentialResponse => {
+                    if(credentialResponse.credential) {
+                        googleLogin(credentialResponse.credential)
+                    }
+                    else {
+                        toast.error('Login Failed')
+                    }
+                }}
+                onError={() => {
+                    toast.error('Login Failed')
+                }}
+        />
     </form>
 }
