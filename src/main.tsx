@@ -12,7 +12,7 @@ import CommentContextProvider from './context/CommentContext.tsx'
 import { UserContextProvider } from './context/UserContext.tsx'
 import { GoogleOAuthProvider } from '@react-oauth/google';
 
-axios.defaults.baseURL = 'http://localhost:5000'
+axios.defaults.baseURL = `http://localhost:5000`
 
 axios.interceptors.request.use((config) => {
   const token = JSON.parse(localStorage.getItem("token") || "null") as IToken | null
